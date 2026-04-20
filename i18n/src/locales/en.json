@@ -1,0 +1,214 @@
+{
+	"app": {
+		"name": "Roastery Ledger",
+		"tagline": "Track every bean from origin to cup"
+	},
+	"nav": {
+		"dashboard": "Dashboard",
+		"beans": "Beans",
+		"roastLog": "Roast Log",
+		"cupping": "Cupping",
+		"settings": "Settings"
+	},
+	"units": {
+		"temperature": "{value} °C",
+		"rateOfRise": "{value} °C/min",
+		"altitudeMasl": "{value} masl",
+		"weightKg": "{value} kg",
+		"points": "{value} pts",
+		"subscriptionFee": "${value} / month"
+	},
+	"common": {
+		"save": "Save",
+		"cancel": "Cancel",
+		"delete": "Delete",
+		"edit": "Edit",
+		"confirm": "Confirm",
+		"close": "Close",
+		"add": "Add",
+		"search": "Search",
+		"loading": "Loading...",
+		"yes": "Yes",
+		"no": "No",
+		"finish": "Finish",
+		"back": "Back",
+		"next": "Next",
+		"body": "Body",
+		"notes": "Notes",
+		"drop": "Drop files here",
+		"uploadHint": "Drag and drop, or click to browse",
+		"dialogTitle": "Please review",
+		"requiredField": "Required"
+	},
+	"dashboard": {
+		"greeting": "Welcome back",
+		"subtitle": "Here's what's happening in your roastery",
+		"stats": {
+			"totalBeans": "Total Beans",
+			"activeRoasts": "Active Roasts",
+			"cuppingsThisMonth": "Cuppings This Month",
+			"avgScore": "Average Score"
+		},
+		"variety": "A world of variety, one cup at a time",
+		"varietyHint": "New single-origin lots arrive every week",
+		"development": "In Development",
+		"developmentHint": "Upcoming features we're working on",
+		"recentActivity": "Recent Activity",
+		"empty": "No activity yet — start by adding your first bean."
+	},
+	"beans": {
+		"pageTitle": "Green Coffee Inventory",
+		"list": {
+			"name": "Name",
+			"origin": "Origin",
+			"variety": "Variety",
+			"process": "Process",
+			"altitude": "Altitude",
+			"harvest": "Harvest",
+			"stock": "Stock",
+			"empty": "No beans in your inventory yet."
+		},
+		"form": {
+			"title": "Add a new bean lot",
+			"name": "Name",
+			"namePlaceholder": "e.g. Yirgacheffe Kochere",
+			"origin": "Origin",
+			"variety": "Variety",
+			"varietyPlaceholder": "e.g. Heirloom, Gesha, Caturra",
+			"process": "Process",
+			"washed": "Washed",
+			"altitudeMasl": "Altitude (masl)",
+			"harvestYear": "Harvest year"
+		},
+		"detail": {
+			"sectionOrigin": "Origin information",
+			"sectionLogistics": "Logistics",
+			"notes": "Flavor notes",
+			"export": "Export",
+			"exportHint": "Exporting country of this lot",
+			"importer": "Importer",
+			"arrivalDate": "Arrived on"
+		},
+		"origin": {
+			"title": "Origin",
+			"ethiopia": "Ethiopia",
+			"colombia": "Colombia",
+			"panama": "Panama",
+			"kenya": "Kenya",
+			"guatemala": "Guatemala",
+			"indonesia": "Indonesia",
+			"costaRica": "Costa Rica"
+		},
+		"process": {
+			"washed": "Washed",
+			"natural": "Natural",
+			"honey": "Honey",
+			"anaerobic": "Anaerobic",
+			"wetHulled": "Wet-hulled"
+		}
+	},
+	"roast": {
+		"pageTitle": "Roast Sessions",
+		"newSession": "Start new roast",
+		"timeline": {
+			"title": "Roast timeline",
+			"charge": "Charge",
+			"drying": "Drying",
+			"maillard": "Maillard",
+			"development": "Development",
+			"finish": "Finish"
+		},
+		"events": {
+			"title": "Events",
+			"origin": "Origin",
+			"originHint": "Time reference point for this curve",
+			"turningPoint": "Turning Point",
+			"firstCrack": "First Crack",
+			"secondCrack": "Second Crack",
+			"crack": "Crack",
+			"drop": "Drop",
+			"dropHint": "End of roast — beans released to cooler"
+		},
+		"metrics": {
+			"title": "Metrics",
+			"chargeTemp": "Charge temperature",
+			"dropTemp": "Drop temperature",
+			"development": "Development",
+			"developmentHint": "Time and ratio (DTR) from first crack to drop",
+			"ror": "Rate of Rise",
+			"totalTime": "Total time"
+		}
+	},
+	"cupping": {
+		"pageTitle": "Cupping Sessions",
+		"form": {
+			"title": "Score sheet",
+			"fragrance": "Fragrance",
+			"aroma": "Aroma",
+			"flavor": "Flavor",
+			"aftertaste": "Aftertaste",
+			"acidity": "Acidity",
+			"body": "Body",
+			"balance": "Balance",
+			"sweetness": "Sweetness",
+			"cleanCup": "Clean cup",
+			"uniformity": "Uniformity",
+			"overall": "Overall",
+			"finish": "Finish",
+			"finishHint": "Lingering sensation after swallowing",
+			"totalScore": "Total score"
+		},
+		"notes": {
+			"title": "Flavor notes",
+			"placeholder": "Describe what you taste...",
+			"floral": "Floral",
+			"fruity": "Fruity",
+			"nutty": "Nutty",
+			"chocolate": "Chocolate",
+			"caramel": "Caramel",
+			"spicy": "Spicy",
+			"earthy": "Earthy",
+			"natural": "Natural"
+		},
+		"summary": {
+			"title": "Summary",
+			"empty": "No cuppings recorded yet."
+		}
+	},
+	"settings": {
+		"pageTitle": "Settings",
+		"data": {
+			"title": "Data management",
+			"export": "Export",
+			"exportHint": "Download all your data as a JSON file",
+			"exportSuccess": "Your data has been exported successfully. A download should begin automatically.",
+			"import": "Import",
+			"importHint": "Restore from a previously exported file",
+			"reset": "Reset",
+			"resetHint": "Delete all local data",
+			"balance": "Balance",
+			"balanceHint": "Remaining credits in your account"
+		},
+		"preferences": {
+			"title": "Preferences",
+			"language": "Language",
+			"temperatureUnit": "Temperature unit",
+			"celsius": "Celsius",
+			"fahrenheit": "Fahrenheit",
+			"charge": "Charge",
+			"chargeHint": "Monthly subscription fee",
+			"notes": "Notes",
+			"notesPlaceholder": "Add a remark about your account..."
+		}
+	},
+	"toast": {
+		"saved": "Saved successfully",
+		"deleted": "Deleted",
+		"error": "Something went wrong",
+		"networkError": "Network error — please try again"
+	},
+	"empty": {
+		"generic": "Nothing to show here yet",
+		"searchNoResults": "No matches for your search"
+	}
+}

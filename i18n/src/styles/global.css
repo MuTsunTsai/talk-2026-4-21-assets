@@ -1,0 +1,94 @@
+:root {
+	/* 咖啡意象色票：以 espresso（濃縮咖啡）深棕為主角，
+	   奶泡／拿鐵的柔和米白作為背景，焦糖琥珀作為點綴。 */
+	--color-espresso: #3b2417;          /* 深濃縮咖啡（Header 底色） */
+	--color-espresso-2: #28170e;        /* 咖啡豆最深色 */
+	--color-coffee: #6f3f1d;            /* 中度烘焙棕（主要 accent） */
+	--color-coffee-dark: #4a2711;       /* 深烘焙棕（hover／強調） */
+	--color-caramel: #c98a2b;           /* 焦糖琥珀 */
+	--color-crema: #d9b58a;             /* 油脂奶泡 */
+	--color-latte: #f0e3d2;             /* 拿鐵奶泡 */
+	--color-cream: #f7ecd8;             /* 鮮奶油 */
+
+	--color-bg: #f3e9d7;                /* 主背景：微焦米白（含一點點琥珀） */
+	--color-surface: #fbf4e6;           /* 卡片面板：更淺的奶色紙感 */
+	--color-surface-alt: #ebdcc1;       /* 次要表面：麻袋色 */
+	--color-border: #d4bf9a;            /* 邊框：中階米棕 */
+	--color-border-strong: #b89c70;     /* 強化邊框 */
+
+	--color-text: #2a170a;              /* 主文字：極深咖啡 */
+	--color-text-muted: #7a5a3a;        /* 次要文字：淡咖啡 */
+	--color-text-inverse: #fbf4e6;      /* 反白文字（深色底上） */
+
+	--color-accent: var(--color-coffee);
+	--color-accent-dark: var(--color-coffee-dark);
+	--color-success: #5a7c3e;
+	--color-warning: var(--color-caramel);
+	--color-danger: #a84a3c;
+
+	--radius-sm: 6px;
+	--radius-md: 10px;
+	--radius-lg: 16px;
+	--shadow-sm: 0 1px 2px rgba(40, 20, 8, 0.10);
+	--shadow-md: 0 6px 18px rgba(40, 20, 8, 0.14);
+	--shadow-inset: inset 0 1px 0 rgba(255, 255, 255, 0.4);
+	--font-body: "Twemoji Flags", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+	/* 標題字型：帶古典浪漫感的襯線字（像老派咖啡館招牌） */
+	--font-display: "Twemoji Flags", "Playfair Display", "Cormorant Garamond", "Libre Caslon Text", Georgia, "Times New Roman", serif;
+}
+
+@import url("https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,600;0,700;1,500&display=swap");
+
+/* Mozilla 的 Twemoji 字型檔：用來讓 Windows 系統上也能顯示彩色國旗 emoji。
+   限制 unicode-range 到 Regional Indicator 區塊（U+1F1E6–U+1F1FF），
+   這樣只有國旗 emoji 會優先用這個字型，其餘 emoji 仍用系統字型，以加快載入。 */
+@font-face {
+	font-family: "Twemoji Flags";
+	src: url("../fonts/Twemoji.Mozilla.ttf") format("truetype");
+	unicode-range: U+1F1E6-1F1FF;
+	font-display: swap;
+}
+
+* {
+	box-sizing: border-box;
+}
+
+h1, h2, h3 {
+	font-family: var(--font-display);
+	font-weight: 600;
+	letter-spacing: 0.005em;
+}
+
+h1 {
+	font-weight: 700;
+}
+
+html, body {
+	margin: 0;
+	padding: 0;
+	font-family: var(--font-body);
+	color: var(--color-text);
+	/* 背景加上非常輕微的雙層 radial gradient，模擬豆麻袋／紙張的溫度感 */
+	background-color: var(--color-bg);
+	background-image:
+		radial-gradient(at 20% 0%, rgba(201, 138, 43, 0.08), transparent 50%),
+		radial-gradient(at 100% 100%, rgba(59, 36, 23, 0.08), transparent 55%);
+	background-attachment: fixed;
+	-webkit-font-smoothing: antialiased;
+}
+
+#root {
+	min-height: 100vh;
+	display: flex;
+	flex-direction: column;
+}
+
+button {
+	font-family: inherit;
+	cursor: pointer;
+}
+
+input, select, textarea {
+	font-family: inherit;
+	color: inherit;
+}

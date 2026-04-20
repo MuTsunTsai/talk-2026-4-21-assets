@@ -1,0 +1,25 @@
+{
+	"name": "context-aware-i18n-demo",
+	"version": "1.0.0",
+	"private": true,
+	"type": "module",
+	"description": "A coffee roasting log app that showcases how AI needs UI context to translate i18n strings correctly.",
+	"scripts": {
+		"dev": "rsbuild dev",
+		"build": "rsbuild build",
+		"preview": "rsbuild preview",
+		"typecheck": "vue-tsc --noEmit"
+	},
+	"dependencies": {
+		"vue": "^3.5.13",
+		"vue-i18n": "^10.0.5",
+		"vue-router": "^5.0.4"
+	},
+	"devDependencies": {
+		"@rsbuild/core": "^1.1.13",
+		"@rsbuild/plugin-vue": "^1.0.7",
+		"@types/node": "^22.10.5",
+		"typescript": "^5.7.3",
+		"vue-tsc": "^2.2.0"
+	}
+}

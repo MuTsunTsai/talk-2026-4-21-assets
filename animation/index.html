@@ -1,0 +1,600 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+	<meta charset="UTF-8">
+	<title>Neon Music Spinner</title>
+
+	<!-- ========= Spinner 核心樣式（匯出時會保留） ========= -->
+	<style id="spinner-style">
+		:root {
+			--size: 300px;
+			--pulse-duration: 2.4s;
+			--wave-duration: 0.3s;
+			--color-primary: #ff2d9e;
+			--color-secondary: #00e5ff;
+			--color-accent: #a855f7;
+			--bar-count: 120;
+			--bar-min: 4px;
+			--bar-max: 20px;
+			--eq-radius: 50;          /* 頻譜內緣半徑（SVG viewBox 單位，無單位方便 calc） */
+			--eq-rotate-duration: 40s; /* 整個頻譜環繞中心旋轉的週期 */
+			--ring-inner-r: 38;       /* 內圈（粉）半徑 */
+			--ring-mid-r: 77;         /* 中圈（青）半徑 */
+			--ring-outer-r: 90;       /* 外圈（紫）半徑 */
+			--ring-glow: 0.8;         /* 三圈共用的光暈強度倍率（乘以各層基準 px） */
+		}
+
+		.neon-spinner {
+			position: relative;
+			width: var(--size);
+			height: var(--size);
+			display: flex;
+			align-items: center;
+			justify-content: center;
+		}
+
+		/* === 同心圓環 === */
+		.neon-spinner .rings {
+			position: absolute;
+			inset: 0;
+			width: 100%;
+			height: 100%;
+			overflow: visible;
+		}
+
+		.neon-spinner .ring {
+			fill: none;
+			transform-origin: 50% 50%;
+			transform-box: fill-box;
+		}
+
+		.neon-spinner .ring-inner {
+			r: var(--ring-inner-r);
+			stroke: var(--color-primary);
+			stroke-width: 3;
+			/* 四層 drop-shadow：近核心緊湊亮、外緣柔和散開。
+			   光暈倍率 --ring-glow 乘以各層基準 px（0.4/1/2.3/4）*/
+			filter: drop-shadow(0 0 calc(var(--ring-glow) * 0.8px) var(--color-primary))
+			        drop-shadow(0 0 calc(var(--ring-glow) * 1px)   var(--color-primary))
+			        drop-shadow(0 0 calc(var(--ring-glow) * 2.3px) var(--color-primary))
+			        drop-shadow(0 0 calc(var(--ring-glow) * 4px)   var(--color-primary));
+			animation: ring-pulse var(--pulse-duration) ease-in-out infinite;
+		}
+
+		.neon-spinner .ring-mid {
+			r: var(--ring-mid-r);
+			stroke: var(--color-secondary);
+			stroke-width: 1.4;
+			filter: drop-shadow(0 0 calc(var(--ring-glow) * 0.8px) var(--color-secondary))
+			        drop-shadow(0 0 calc(var(--ring-glow) * 1px)   var(--color-secondary))
+			        drop-shadow(0 0 calc(var(--ring-glow) * 2.3px) var(--color-secondary))
+			        drop-shadow(0 0 calc(var(--ring-glow) * 4px)   var(--color-secondary));
+		}
+
+		.neon-spinner .ring-outer {
+			r: var(--ring-outer-r);
+			stroke: var(--color-accent);
+			stroke-width: 1;
+			opacity: 0.9;
+			filter: drop-shadow(0 0 calc(var(--ring-glow) * 0.8px) var(--color-accent))
+			        drop-shadow(0 0 calc(var(--ring-glow) * 1px)   var(--color-accent))
+			        drop-shadow(0 0 calc(var(--ring-glow) * 2.3px) var(--color-accent))
+			        drop-shadow(0 0 calc(var(--ring-glow) * 4px)   var(--color-accent));
+		}
+
+		@keyframes ring-pulse {
+			0%, 100% { transform: scale(1); opacity: 0.9; }
+			50%      { transform: scale(1.04); opacity: 1; }
+		}
+
+		/* === 徑向頻譜條 === */
+		.neon-spinner .equalizer {
+			position: absolute;
+			inset: 0;
+			width: 100%;
+			height: 100%;
+			overflow: visible;
+		}
+
+		/* 第 1 層 <g>：整個頻譜環以中心旋轉 */
+		.neon-spinner .eq-ring {
+			transform-origin: 100px 100px;
+			animation: eq-rotate var(--eq-rotate-duration) linear infinite;
+		}
+
+		/* 第 2 層 <g class="bar-slot">：個別角度旋轉，用 SVG 原生 transform 屬性（靜態） */
+
+		/* 第 3 層 <g class="bar-offset">：向外位移到 --eq-radius */
+		.neon-spinner .bar-offset {
+			/* 旋轉後，「向外」在局部座標系裡是 y 負方向 */
+			transform: translateY(calc(var(--eq-radius) * -1px));
+		}
+
+		/* 內層 rect：只做 scaleY 伸縮 */
+		.neon-spinner .bar {
+			transform-origin: center bottom;
+			transform-box: fill-box;
+			animation-name: eq-bounce;
+			animation-iteration-count: infinite;
+			animation-timing-function: ease-in-out;
+			animation-direction: alternate;
+			filter: drop-shadow(0 0 3px currentColor);
+		}
+
+		@keyframes eq-bounce {
+			0%   { transform: scaleY(0.2); }
+			100% { transform: scaleY(1); }
+		}
+		@keyframes eq-rotate {
+			to { transform: rotate(360deg); }
+		}
+
+		/* === 水平正弦波（原地上下起伏） === */
+		.neon-spinner .waves {
+			position: absolute;
+			top: 50%;
+			left: 50%;
+			transform: translate(-50%, -50%);
+			width: 260%;
+			height: 60%;
+			pointer-events: none;
+			overflow: visible;
+			/* 左右兩端淡出 */
+			-webkit-mask-image: linear-gradient(90deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
+			mask-image: linear-gradient(90deg, transparent 0%, #000 18%, #000 82%, transparent 100%);
+		}
+
+		.neon-spinner .wave {
+			fill: none;
+			stroke-width: 1.6;
+			stroke-linecap: round;
+			/* 以 SVG 中線為縮放原點，波峰波谷朝中線收合 */
+			transform-origin: 50% 50%;
+			transform-box: fill-box;
+			animation-name: wave-pulse;
+			animation-timing-function: ease-in-out;
+			animation-iteration-count: infinite;
+			animation-direction: alternate;
+		}
+
+		.neon-spinner .wave-1 {
+			stroke: var(--color-secondary);
+			opacity: 0.85;
+			filter: drop-shadow(0 0 4px var(--color-secondary));
+			animation-duration: var(--wave-duration);
+		}
+		.neon-spinner .wave-2 {
+			stroke: var(--color-primary);
+			opacity: 0.75;
+			filter: drop-shadow(0 0 4px var(--color-primary));
+			animation-duration: calc(var(--wave-duration) * 1.4);
+			animation-delay: calc(var(--wave-duration) * -0.3);
+		}
+		.neon-spinner .wave-3 {
+			stroke: var(--color-accent);
+			opacity: 0.6;
+			stroke-width: 1;
+			filter: drop-shadow(0 0 3px var(--color-accent));
+			animation-duration: calc(var(--wave-duration) * 0.75);
+			animation-delay: calc(var(--wave-duration) * -0.55);
+		}
+
+		@keyframes wave-pulse {
+			0%   { transform: scaleY(-1); }
+			100% { transform: scaleY(1); }
+		}
+
+		/* === 舞台背景 === */
+		.neon-stage {
+			background: #000;
+			min-height: 100vh;
+			display: flex;
+			align-items: center;
+			justify-content: center;
+			overflow: hidden;
+		}
+	</style>
+
+	<!-- ========= 開發工具 UI 樣式（匯出時不保留） ========= -->
+	<style id="devtool-style">
+		* { box-sizing: border-box; }
+		html, body { margin: 0; padding: 0; font-family: "Segoe UI", "Microsoft JhengHei", sans-serif; }
+		body {
+			background: #000;
+			color: #ddd;
+			min-height: 100vh;
+			display: grid;
+			grid-template-columns: 1fr 340px;
+		}
+
+		.neon-stage {
+			min-height: 100vh;
+			padding: 20px;
+		}
+
+		.panel {
+			background: #0f0f14;
+			border-left: 1px solid #222;
+			padding: 20px 18px;
+			overflow-y: auto;
+			max-height: 100vh;
+			font-size: 13px;
+		}
+		.panel h2 {
+			margin: 0 0 14px;
+			font-size: 14px;
+			letter-spacing: 0.08em;
+			color: #fff;
+			text-transform: uppercase;
+			border-bottom: 1px solid #222;
+			padding-bottom: 8px;
+		}
+		.panel h3 {
+			margin: 18px 0 8px;
+			font-size: 11px;
+			letter-spacing: 0.1em;
+			color: #888;
+			text-transform: uppercase;
+		}
+
+		.ctrl {
+			display: grid;
+			grid-template-columns: 1fr auto;
+			align-items: center;
+			gap: 6px 10px;
+			margin-bottom: 10px;
+		}
+		.ctrl label {
+			grid-column: 1 / -1;
+			font-size: 12px;
+			color: #aaa;
+			display: flex;
+			justify-content: space-between;
+		}
+		.ctrl label .val {
+			color: #fff;
+			font-variant-numeric: tabular-nums;
+		}
+		.ctrl input[type="range"] {
+			grid-column: 1 / -1;
+			width: 100%;
+			accent-color: #ff2d9e;
+		}
+		.ctrl input[type="color"] {
+			grid-column: 1 / -1;
+			width: 100%;
+			height: 30px;
+			border: 1px solid #333;
+			background: #000;
+			cursor: pointer;
+			padding: 2px;
+		}
+
+		.panel button {
+			width: 100%;
+			background: linear-gradient(90deg, #ff2d9e, #a855f7);
+			color: #fff;
+			border: none;
+			padding: 10px;
+			font-weight: 600;
+			font-size: 13px;
+			letter-spacing: 0.06em;
+			cursor: pointer;
+			border-radius: 4px;
+			margin-top: 8px;
+			text-transform: uppercase;
+		}
+		.panel button.secondary {
+			background: #2a2a35;
+			color: #ccc;
+		}
+		.panel button:hover { filter: brightness(1.1); }
+
+		.export-area {
+			margin-top: 16px;
+			display: none;
+		}
+		.export-area.show { display: block; }
+		.export-area pre {
+			background: #000;
+			border: 1px solid #222;
+			color: #c9d1d9;
+			padding: 10px;
+			font-size: 11px;
+			line-height: 1.45;
+			max-height: 260px;
+			overflow: auto;
+			margin: 8px 0 0;
+			white-space: pre;
+			font-family: "Consolas", "Courier New", monospace;
+		}
+
+		.tip {
+			margin-top: 16px;
+			color: #666;
+			font-size: 11px;
+			line-height: 1.6;
+		}
+	</style>
+</head>
+<body>
+
+<div class="neon-stage">
+	<div class="neon-spinner" id="spinner">
+
+		<!-- 水平波形：固定位置、以 scaleY 做呼吸式脈動
+		     三條 path 皆採用同樣的均勻 sine 生成法（Q + 連續 T）,
+		     只改變波長與振幅，避免紫色以外的波形看起來不整齊。-->
+		<svg class="waves" viewBox="0 0 1000 200" preserveAspectRatio="none">
+			<!-- 主波（青）：長波長 λ=250、大振幅 A=70 -->
+			<path class="wave wave-1"
+				d="M 0 100 Q 62.5 30 125 100 T 250 100 T 375 100 T 500 100 T 625 100 T 750 100 T 875 100 T 1000 100"/>
+			<!-- 中波（粉）：中波長 λ=125、中振幅 A=50 -->
+			<path class="wave wave-2"
+				d="M 0 100 Q 31.25 50 62.5 100 T 125 100 T 187.5 100 T 250 100 T 312.5 100 T 375 100 T 437.5 100 T 500 100 T 562.5 100 T 625 100 T 687.5 100 T 750 100 T 812.5 100 T 875 100 T 937.5 100 T 1000 100"/>
+			<!-- 細波（紫）：短波長 λ=50、小振幅 A=60 -->
+			<path class="wave wave-3"
+				d="M 0 100 Q 25 40 50 100 T 100 100 T 150 100 T 200 100 T 250 100 T 300 100 T 350 100 T 400 100 T 450 100 T 500 100 T 550 100 T 600 100 T 650 100 T 700 100 T 750 100 T 800 100 T 850 100 T 900 100 T 950 100 T 1000 100"/>
+		</svg>
+
+		<!-- 同心圓環（半徑由 CSS variable 控制）-->
+		<svg class="rings" viewBox="0 0 200 200">
+			<circle class="ring ring-outer" cx="100" cy="100"/>
+			<circle class="ring ring-mid"   cx="100" cy="100"/>
+			<circle class="ring ring-inner" cx="100" cy="100"/>
+		</svg>
+
+		<!-- 徑向頻譜條 -->
+		<svg class="equalizer" id="equalizer" viewBox="0 0 200 200"></svg>
+
+	</div>
+</div>
+
+<aside class="panel">
+	<h2>Neon Spinner 控制台</h2>
+
+	<h3>尺寸與節奏</h3>
+	<div class="ctrl">
+		<label>整體尺寸 <span class="val" id="v-size">300</span>px</label>
+		<input type="range" id="c-size" min="100" max="400" step="5" value="300">
+	</div>
+	<div class="ctrl">
+		<label>脈動週期 <span class="val" id="v-pulse">2.4</span>s</label>
+		<input type="range" id="c-pulse" min="0.8" max="6" step="0.1" value="2.4">
+	</div>
+	<div class="ctrl">
+		<label>波形週期 <span class="val" id="v-wave">0.3</span>s</label>
+		<input type="range" id="c-wave" min="0.1" max="1.0" step="0.05" value="0.3">
+	</div>
+
+	<h3>圓環半徑</h3>
+	<div class="ctrl">
+		<label>內圈（粉） <span class="val" id="v-ring-inner-r">38</span></label>
+		<input type="range" id="c-ring-inner-r" min="10" max="95" step="1" value="38">
+	</div>
+	<div class="ctrl">
+		<label>中圈（青） <span class="val" id="v-ring-mid-r">77</span></label>
+		<input type="range" id="c-ring-mid-r" min="10" max="95" step="1" value="77">
+	</div>
+	<div class="ctrl">
+		<label>外圈（紫） <span class="val" id="v-ring-outer-r">90</span></label>
+		<input type="range" id="c-ring-outer-r" min="10" max="95" step="1" value="90">
+	</div>
+	<div class="ctrl">
+		<label>光暈強度 <span class="val" id="v-ring-glow">0.8</span></label>
+		<input type="range" id="c-ring-glow" min="0" max="3" step="0.1" value="0.8">
+	</div>
+
+	<h3>色彩</h3>
+	<div class="ctrl">
+		<label>主色（粉）</label>
+		<input type="color" id="c-primary" value="#ff2d9e">
+	</div>
+	<div class="ctrl">
+		<label>副色（青）</label>
+		<input type="color" id="c-secondary" value="#00e5ff">
+	</div>
+	<div class="ctrl">
+		<label>強調色（紫）</label>
+		<input type="color" id="c-accent" value="#a855f7">
+	</div>
+
+	<h3>徑向頻譜</h3>
+	<div class="ctrl">
+		<label>條數 <span class="val" id="v-bar-count">120</span></label>
+		<input type="range" id="c-bar-count" min="24" max="180" step="2" value="120">
+	</div>
+	<div class="ctrl">
+		<label>內緣半徑 <span class="val" id="v-eq-radius">50</span></label>
+		<input type="range" id="c-eq-radius" min="40" max="110" step="1" value="50">
+	</div>
+	<div class="ctrl">
+		<label>整體旋轉週期 <span class="val" id="v-eq-rotate">40</span>s</label>
+		<input type="range" id="c-eq-rotate" min="4" max="120" step="1" value="40">
+	</div>
+	<div class="ctrl">
+		<label>最短振幅 <span class="val" id="v-bar-min">4</span>px</label>
+		<input type="range" id="c-bar-min" min="2" max="30" step="1" value="4">
+	</div>
+	<div class="ctrl">
+		<label>最長振幅 <span class="val" id="v-bar-max">20</span>px</label>
+		<input type="range" id="c-bar-max" min="10" max="80" step="1" value="20">
+	</div>
+
+	<button id="btn-export">匯出純 CSS 程式碼</button>
+
+	<div class="export-area" id="export-area">
+		<button class="secondary" id="btn-copy">複製到剪貼簿</button>
+		<pre id="export-code"></pre>
+	</div>
+
+	<div class="tip">
+		提示：改變「條數」會重新生成頻譜 DOM。其他參數即時調整。
+	</div>
+</aside>
+
+<!-- ========= 開發用 JS（匯出時不保留） ========= -->
+<script>
+	const root = document.documentElement;
+	const eq = document.getElementById("equalizer");
+
+	function rebuildEqualizer() {
+		const count = Number(getVar("--bar-count"));
+		const min = parseFloat(getVar("--bar-min"));
+		const max = parseFloat(getVar("--bar-max"));
+
+		// 結構:
+		//   <g class="eq-ring">                     整體 CSS 旋轉動畫
+		//     <g transform="rotate(a 100 100)">    個別角度（SVG 原生，靜態）
+		//       <g class="bar-offset">              用 CSS 依 --eq-radius 位移
+		//         <rect class="bar" x=-w/2 y=-h .../>  scaleY 動畫
+		// rect 的底邊在 bar-offset 局部座標的 y=0；bar-offset 再把它 translateY(-radius)。
+		// bar-offset 的父 <g> 先 rotate(a 100 100) 把局部原點移到角度 a 的中心軸上，
+		// 所以 translateY 是沿著該角度的徑向外推。
+		const cx = 100, cy = 100;
+		const barW = 1.4;
+		const x = (cx - barW / 2).toFixed(2);
+
+		let html = "<g class=\"eq-ring\">";
+		for (let i = 0; i < count; i++) {
+			const angle = (i / count) * 360;
+			const h = (min + Math.random() * (max - min)).toFixed(2);
+			const delay = -(Math.random() * 1.2).toFixed(2);
+			const duration = (0.38 + Math.random() * 0.55).toFixed(2);
+			const hue = Math.floor((i / count) * 360);
+			const color = `hsl(${hue}, 95%, 62%)`;
+			// rect 底邊貼在 y=cy，向上長 h → y = cy - h
+			const y = (cy - parseFloat(h)).toFixed(2);
+
+			html += `<g transform="rotate(${angle.toFixed(2)} ${cx} ${cy})">`
+				+ `<g class="bar-offset">`
+				+ `<rect class="bar" x="${x}" y="${y}" width="${barW}" height="${h}" fill="${color}" `
+				+ `style="color:${color};animation-delay:${delay}s;animation-duration:${duration}s;"/>`
+				+ `</g></g>`;
+		}
+		html += "</g>";
+		eq.innerHTML = html;
+	}
+
+	function getVar(name) {
+		return getComputedStyle(root).getPropertyValue(name).trim();
+	}
+
+	function bindRange(id, varName, unit, displayId, transform) {
+		const el = document.getElementById(id);
+		const disp = document.getElementById(displayId);
+		el.addEventListener("input", () => {
+			const v = el.value;
+			root.style.setProperty(varName, (transform ? transform(v) : v) + (unit || ""));
+			if (disp) disp.textContent = v;
+		});
+	}
+
+	function bindColor(id, varName) {
+		const el = document.getElementById(id);
+		el.addEventListener("input", () => {
+			root.style.setProperty(varName, el.value);
+		});
+	}
+
+	// 綁定基本控制項
+	bindRange("c-size", "--size", "px", "v-size");
+	bindRange("c-pulse", "--pulse-duration", "s", "v-pulse");
+	bindRange("c-wave", "--wave-duration", "s", "v-wave");
+	bindColor("c-primary", "--color-primary");
+	bindColor("c-secondary", "--color-secondary");
+	bindColor("c-accent", "--color-accent");
+	// 頻譜半徑（無單位，viewBox 座標）
+	bindRange("c-eq-radius", "--eq-radius", "", "v-eq-radius");
+	bindRange("c-eq-rotate", "--eq-rotate-duration", "s", "v-eq-rotate");
+	// 三圈半徑（無單位，viewBox 座標，SVG geometry property 直接接受）
+	bindRange("c-ring-inner-r", "--ring-inner-r", "", "v-ring-inner-r");
+	bindRange("c-ring-mid-r",   "--ring-mid-r",   "", "v-ring-mid-r");
+	bindRange("c-ring-outer-r", "--ring-outer-r", "", "v-ring-outer-r");
+	bindRange("c-ring-glow",    "--ring-glow",    "",   "v-ring-glow");
+
+	// 頻譜相關：min/max 改變時不必改 CSS var，而是重新生成 rect 的 height
+	// （因為靜態屬性比 CSS var 更便於匯出無 JS 版本）
+	function bindEqRange(id, displayId, cssVar) {
+		const el = document.getElementById(id);
+		const disp = document.getElementById(displayId);
+		el.addEventListener("input", () => {
+			disp.textContent = el.value;
+			root.style.setProperty(cssVar, el.value + "px");
+			rebuildEqualizer();
+		});
+	}
+	bindEqRange("c-bar-min", "v-bar-min", "--bar-min");
+	bindEqRange("c-bar-max", "v-bar-max", "--bar-max");
+
+	// 條數
+	document.getElementById("c-bar-count").addEventListener("input", e => {
+		document.getElementById("v-bar-count").textContent = e.target.value;
+		root.style.setProperty("--bar-count", e.target.value);
+		rebuildEqualizer();
+	});
+
+	// === 匯出 ===
+	function exportPureCSS() {
+		// 目前套用的 CSS variables
+		const varNames = [
+			"--size","--pulse-duration","--wave-duration",
+			"--color-primary","--color-secondary","--color-accent",
+			"--bar-count","--bar-min","--bar-max",
+			"--eq-radius","--eq-rotate-duration",
+			"--ring-inner-r","--ring-mid-r","--ring-outer-r","--ring-glow"
+		];
+		const rootVars = varNames.map(n => `\t\t\t${n}: ${root.style.getPropertyValue(n) || getVar(n)};`).join("\n");
+
+		// spinner 核心樣式（保留 :root 以外其他所有規則；:root 部分用目前值取代）
+		const coreStyleEl = document.getElementById("spinner-style");
+		const coreCSS = coreStyleEl.textContent
+			.replace(/:root\s*\{[^}]*\}/, `:root {\n${rootVars}\n\t\t}`);
+
+		// 複製 spinner DOM
+		const spinner = document.getElementById("spinner").cloneNode(true);
+
+		const html = `<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+<meta charset="UTF-8">
+<title>Neon Music Spinner</title>
+<style>
+${coreCSS.trim()}
+</style>
+</head>
+<body>
+<div class="neon-stage">
+${spinner.outerHTML}
+</div>
+</body>
+</html>`;
+
+		return html;
+	}
+
+	document.getElementById("btn-export").addEventListener("click", () => {
+		const code = exportPureCSS();
+		document.getElementById("export-code").textContent = code;
+		document.getElementById("export-area").classList.add("show");
+	});
+
+	document.getElementById("btn-copy").addEventListener("click", async () => {
+		const code = document.getElementById("export-code").textContent;
+		try {
+			await navigator.clipboard.writeText(code);
+			const btn = document.getElementById("btn-copy");
+			const orig = btn.textContent;
+			btn.textContent = "✓ 已複製";
+			setTimeout(() => btn.textContent = orig, 1500);
+		} catch (err) {
+			alert("複製失敗，請手動選取。");
+		}
+	});
+
+	// 初始化
+	rebuildEqualizer();
+</script>
+
+</body>
+</html>

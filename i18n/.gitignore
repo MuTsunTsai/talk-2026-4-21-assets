@@ -1,0 +1,21 @@
+node_modules/
+dist/
+.DS_Store
+
+# Rsbuild cache
+.rsbuild/
+
+# TypeScript
+*.tsbuildinfo
+
+# Editor
+.vscode/*
+!.vscode/extensions.json
+.idea/
+
+# Logs
+*.log
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+yarn-error.log*
